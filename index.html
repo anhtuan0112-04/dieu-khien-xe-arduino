@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Robot Control</title>
+</head>
+<body style="text-align:center; font-family:sans-serif;">
+
+<h2>🚗 Điều khiển xe Bluetooth</h2>
+
+<button onclick="connect()">🔗 Kết nối Bluetooth</button>
+
+<br><br>
+
+<button onclick="send('F')">⬆️</button><br><br>
+<button onclick="send('L')">⬅️</button>
+<button onclick="send('S')">⏹️</button>
+<button onclick="send('R')">➡️</button><br><br>
+<button onclick="send('B')">⬇️</button>
+
+<script>
+let device, characteristic;
+
+async function connect() {
+  try {
+    device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ['ffe0']
+    });
+
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService('ffe0');
+    characteristic = await service.getCharacteristic('ffe1');
+
+    alert("Đã kết nối!");
+  } catch (error) {
+    alert("Lỗi kết nối: " + error);
+  }
+}
+
+function send(cmd) {
+  if (!characteristic) {
+    alert("Chưa kết nối!");
+    return;
+  }
+
+  let encoder = new TextEncoder();
+  characteristic.writeValue(encoder.encode(cmd));
+}
+</script>
+
+</body>
+</html>
